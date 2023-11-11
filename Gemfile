@@ -41,6 +41,8 @@ group :development, :test do
   gem "debug", platforms: %i[ mri mingw x64_mingw ]
   gem 'dotenv-rails'
   gem 'blueprinter', '~> 0.30.0'
+  gem 'factory_bot_rails', '~> 6.2.0'
+  gem 'faker', '~> 3.2.1'
 end
 
 group :development do
@@ -50,10 +52,11 @@ end
 
 group :test do
   gem 'rspec-rails', '~> 6.0.0'
-  gem 'factory_bot_rails', '~> 6.2.0'
-  gem 'faker', '~> 3.2.1'
   gem 'shoulda-matchers', '~> 5.3.0'
   gem 'database_cleaner-active_record', '~> 2.1'
   gem 'simplecov', require: false
 end
+
+gem 'typhoeus', '~> 1.4'
+gem 'activerecord-import', '~> 1.5'
 

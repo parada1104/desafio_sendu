@@ -30,4 +30,24 @@ RSpec.describe 'Api::V1::Pokemons', type: :request do
       end
     end
   end
+
+  describe 'create' do
+    describe 'HTTP request' do
+      let(:types_list) { create_list(:typeable, 2) }
+      let(:pokemon_attributes) { attributes_for(:pokemon) }
+      context 'with correct params' do
+        before do
+          pokemon_attributes[:type_ids] = types_list.map(&:id)
+          post api_v1_pokemons_path, params: { pokemon: pokemon_attributes }.to_json
+        end
+
+        it 'returns a successful response' do
+          expect(response).to have_http_status(:created)
+          expect(json_response[:name]).to eq(pokemon_attributes[:name])
+          expect(json_response[:order]).to eq(pokemon_attributes[:order])
+          expect(json_response[:id]).to eq(pokemon.id)
+        end
+      end
+    end
+  end
 end

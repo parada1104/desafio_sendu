@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 RSpec.describe Pokemon do
-  let!(:pokemon) { create(:pokemon) }
+  let(:pokemon) { create(:pokemon) }
 
   it 'has a valid factory' do
     expect(pokemon).to be_valid
@@ -18,7 +18,7 @@ RSpec.describe Pokemon do
 
   describe 'Associations' do
     it { should have_many(:pokemon_types) }
-    it { should have_many(:typeable).through(:pokemon_types).as(:type) }
+    it { should have_many(:types).through(:pokemon_types) }
   end
 
   describe 'Validations' do
@@ -27,5 +27,16 @@ RSpec.describe Pokemon do
     it { should validate_presence_of :base_experience }
     it { should validate_presence_of :height }
     it { should validate_presence_of :weight }
+
+    it 'is invalid without a type' do
+      pokemon = build(:pokemon, types: [])
+      expect(pokemon).to_not be_valid
+    end
+
+    it 'is valid with a type' do
+      type = create(:typeable)
+      pokemon = build(:pokemon, types: [type])
+      expect(pokemon).to be_valid
+    end
   end
 end

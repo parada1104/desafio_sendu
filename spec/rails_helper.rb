@@ -5,7 +5,6 @@ require_relative '../config/environment'
 # Prevent database truncation if the environment is production
 abort("The Rails environment is running in production mode!") if Rails.env.production?
 require 'rspec/rails'
-require 'database_cleaner'
 Shoulda::Matchers.configure do |config|
   config.integrate do |with|
     with.test_framework :rspec
@@ -68,21 +67,25 @@ RSpec.configure do |config|
   config.filter_rails_from_backtrace!
   # arbitrary gems may also be filtered via:
   # config.filter_gems_from_backtrace("gem name")
+  config.include FactoryBot::Syntax::Methods
+
   config.before(:suite) do
     DatabaseCleaner.clean_with(:truncation)
     DatabaseCleaner.strategy = :transaction
   end
 
-  config.around do |example|
-    DatabaseCleaner.cleaning do
-      example.run
-    end
-  rescue NoMethodError => e
-    next if e.message == "undefined method `rollback' for nil:NilClass"
+  config.before(:each) do
+    DatabaseCleaner.strategy = :transaction
+  end
 
-    raise e
+  config.before(:each) do
+    DatabaseCleaner.start
+  end
+
+  config.after(:each) do
+    DatabaseCleaner.clean
   end
 
   # Incluir helper para ayudar a obtener la response más fácil
-  config.include Request::JsonHelpers, type: :request
+  config.include Request::JsonHelper, type: :request
 end
