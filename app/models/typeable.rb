@@ -1,0 +1,2 @@
+class Typeable < ApplicationRecord
+end
