@@ -17,30 +17,41 @@ namespace :poke_api do
       break if pokemon_urls.empty?
       puts "Importing #{pokemon_urls.size} Pokemons"
 
-      hydra = Typhoeus::Hydra.new
       pokemon_attributes = []
-
+      pokemon_to_import = []
+      hydra = Typhoeus::Hydra.new
       pokemon_urls.each do |url|
         request = Typhoeus::Request.new(url, method: :get)
         request.on_complete do |response|
           pokemon_data = JSON.parse(response.body)
           pokemon_types = pokemon_data["types"].map { |type| type["type"]["name"] }
           pokemon_types = pokemon_types.map { |type| Typeable.find_or_create_by!(name: type) }
-          pokemon_instance = Pokemon.new({
-                                           name: pokemon_data["name"],
-                                           order: pokemon_data["order"],
-                                           base_experience: pokemon_data["base_experience"],
-                                           weight: pokemon_data["weight"],
-                                           height: pokemon_data["height"],
-                                           type_ids: pokemon_types.map(&:id)
-                                         })
-          pokemon_attributes << pokemon_instance
+          attributes = {
+            name: pokemon_data["name"],
+            order: pokemon_data["order"],
+            base_experience: pokemon_data["base_experience"],
+            weight: pokemon_data["weight"],
+            height: pokemon_data["height"],
+            type_ids: pokemon_types.map(&:id)
+          }
+          pokemon_attributes << attributes
+          pokemon_to_import << Pokemon.new(attributes.except(:type_ids))
         end
         hydra.queue(request)
       end
 
       hydra.run
-      Pokemon.import pokemon_attributes, validate: true
+      imported_pokemon = Pokemon.import pokemon_to_import, validate: false
+      puts "managin associations"
+      pokemon_attributes.each_with_index do |attrs, index|
+        next unless imported_pokemon.ids[index]
+
+        pokemon_id = imported_pokemon.ids[index]
+        attrs[:type_ids].each do |type_id|
+          PokemonType.create!(pokemon_id: pokemon_id, typeable_id: type_id)
+        end
+      end
+
       total_imported += pokemon_attributes.size
       offset += batch_size
     end
