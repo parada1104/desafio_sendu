@@ -6,8 +6,8 @@ module Api
       before_action :set_pokemon, except: %i[index]
 
       def index
-        @pokemons = Pokemon.all
-        json_response(PokemonBlueprint.render(@pokemons))
+        @pokemons = Pokemon.search_results(params)
+        json_response(@pokemons, :ok)
       end
 
       def show

@@ -1,4 +1,9 @@
 class Pokemon < ApplicationRecord
+  extend BasicPagination
+  extend BasicFiltering
+
+  FILTERING_OPTIONS = {}.freeze
+
   has_many :pokemon_types
   has_many :types, through: :pokemon_types, source: :typeable
 
