@@ -12,8 +12,8 @@ RSpec.describe 'Api::V1::Pokemons', type: :request do
         get api_v1_pokemons_path
         expect(response).to be_successful
         expect(response).to have_http_status(:ok)
-        expect(json_response.size).to eq(10)
-        expect(json_response[0]).to include('name', 'order', 'base_experience', 'height', 'weight')
+        expect(json_response[:metadata][:amount]).to eq(10)
+        expect(json_response[:data][0].keys).to include(:name, :order, :base_experience, :height, :weight)
       end
     end
   end
@@ -38,14 +38,13 @@ RSpec.describe 'Api::V1::Pokemons', type: :request do
       context 'with correct params' do
         before do
           pokemon_attributes[:type_ids] = types_list.map(&:id)
-          post api_v1_pokemons_path, params: { pokemon: pokemon_attributes }.to_json
+          post api_v1_pokemons_path, params: { pokemon: pokemon_attributes }.to_json, headers: { 'CONTENT_TYPE' => 'application/json' }
         end
 
         it 'returns a successful response' do
           expect(response).to have_http_status(:created)
           expect(json_response[:name]).to eq(pokemon_attributes[:name])
           expect(json_response[:order]).to eq(pokemon_attributes[:order])
-          expect(json_response[:id]).to eq(pokemon.id)
         end
       end
     end

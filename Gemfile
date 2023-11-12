@@ -59,4 +59,5 @@ end
 
 gem 'typhoeus', '~> 1.4'
 gem 'activerecord-import', '~> 1.5'
+gem 'kaminari', '~> 1.2', '>= 1.2.2'
 

@@ -12,11 +12,11 @@ module BasicFiltering
     [results, total_amount]
   end
 
-  def search_results(params, filter: true, paginate: true, sort: true, serializer_props: {}, serialize_records: true)
+  def search_results(params, filter: true, paginate: true, blueprint_props: {}, serialize_records: true)
     results, total_amount = basic_search_results(params, filter: filter, paginate: paginate)
     return results unless serialize_records
 
-    wrap_results(results, total_amount, serializer_props)
+    wrap_results(results, total_amount, blueprint_props)
   end
 
   def filter_results(params, results)
@@ -29,18 +29,18 @@ module BasicFiltering
     results
   end
 
-  def wrap_results(results, amount, serializer_props)
-    serializer = if serializer_props[:name]
-                   serializer_props[:name].to_s.constantize
-                 else
-                   "#{self}Blueprint".constantize
-                 end
-    results = results.map { |result| serializer.new(result) }
+  def wrap_results(results, amount, blueprint_props = {})
+    blueprint = if blueprint_props[:name]
+                  blueprint_props[:name].to_s.constantize
+                else
+                  "#{self}Blueprint".constantize
+                end
+    results = blueprint.render_as_hash(results, blueprint_props[:options] || {})
     {
-      data: results,
       metadata: {
         amount: amount
-      }
+      },
+      data: results
     }
   end
 end

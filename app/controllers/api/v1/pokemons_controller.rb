@@ -3,7 +3,7 @@
 module Api
   module V1
     class PokemonsController < V1Controller
-      before_action :set_pokemon, except: %i[index]
+      before_action :set_pokemon, except: %i[index create]
 
       def index
         @pokemons = Pokemon.search_results(params)
@@ -41,6 +41,7 @@ module Api
               .permit(:name,
                       :height,
                       :weight,
+                      :order,
                       :base_experience,
                       type_ids: [])
       end

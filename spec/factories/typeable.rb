@@ -2,6 +2,6 @@
 
 FactoryBot.define do
   factory :typeable do
-    name { %w[Fire Fairy Grass Ground].sample }
+    sequence(:name) { |n| "Typeable#{n}" }
   end
 end
